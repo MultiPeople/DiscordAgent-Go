@@ -199,12 +199,8 @@ jobs:
           RELEASE_REPOSITORY: ${{ github.repository }}
         shell: bash
         run: |
+          # A release published before the builds finish still gets its assets.
           if gh release view "$RELEASE_TAG" --repo "$RELEASE_REPOSITORY" >/dev/null 2>&1; then
-            is_draft="$(gh release view "$RELEASE_TAG" --repo "$RELEASE_REPOSITORY" --json isDraft --jq '.isDraft')"
-            if [ "$is_draft" != "true" ]; then
-              echo "Release $RELEASE_TAG is already published; leaving it unchanged."
-              exit 0
-            fi
             gh release upload "$RELEASE_TAG" release-assets/* --clobber --repo "$RELEASE_REPOSITORY"
           else
             gh release create "$RELEASE_TAG" release-assets/* --draft --verify-tag --generate-notes --title "$RELEASE_TAG" --repo "$RELEASE_REPOSITORY"
